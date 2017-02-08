@@ -110,7 +110,13 @@ module.exports = function VASTPlugin(options) {
 
     disable: function () {
       settings.adsEnabled = false;
-    }
+    },
+	play: function(sUrl){
+		if(typeof sUrl != 'undefined'){
+			settings.adTagUrl = utilities.echoFn(sUrl);
+		}
+		tryToPlayPrerollAd();
+	}
   };
 
   return player.vast;
