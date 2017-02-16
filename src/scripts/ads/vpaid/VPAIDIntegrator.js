@@ -373,8 +373,11 @@ VPAIDIntegrator.prototype._setupEvents = function (adUnit, vastResponse, next) {
         if (currentVolume > 0 && lastVolume === 0) {
           tracker.trackUnmute();
         }
-
-        player.volume(currentVolume);
+		if(currentVolume === 0){
+			player.muted(true);
+		} else {
+			player.volume(currentVolume);
+		}
       }
     });
   });
@@ -501,7 +504,11 @@ VPAIDIntegrator.prototype._linkPlayerControls = function (adUnit, vastResponse, 
           logError(error);
         } else {
           if (lastVolume !== vol) {
-            player.volume(vol);
+			if(vol === 0){
+				player.muted(true);
+			} else {
+				player.volume(vol);
+			}
           }
         }
       });
