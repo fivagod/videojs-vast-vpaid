@@ -116,19 +116,24 @@ module.exports = function VASTPlugin(options) {
 			settings.adTagUrl = utilities.echoFn(sUrl);
 		}
 		tryToPlayPrerollAd();
-	}
+	},
+	isPlayed : false
   };
 
   return player.vast;
 
   /**** Local functions ****/
   function tryToPlayPrerollAd() {
+
+	player.vast.isPlayed = true;
+	
     //We remove the poster to prevent flickering whenever the content starts playing
     playerUtils.removeNativePoster(player);
 
     playerUtils.once(player, ['vast.adsCancel', 'vast.adEnd'], function () {
       removeAdUnit();
       restoreVideoContent();
+	  player.vast.isPlayed = false;
     });
 
     async.waterfall([
@@ -139,6 +144,7 @@ module.exports = function VASTPlugin(options) {
     ], function (error, response) {
       if (error) {
         trackAdError(error, response);
+		player.vast.isPlayed = false;
       } else {
         player.trigger('vast.adEnd');
       }
