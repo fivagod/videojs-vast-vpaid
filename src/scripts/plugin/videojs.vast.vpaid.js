@@ -92,9 +92,9 @@ module.exports = function VASTPlugin(options) {
 		 setTimeout(function(){
 			player.vast.isPlayed = false;
 			player.play();
-		 }, 100)
+		 }, 100);
 	 }
-  })
+  });
 
   if (settings.playAdAlways) {
     // No matter what happens we play a new ad before the user sees the video again.
