@@ -261,7 +261,7 @@ VASTClient.prototype._buildVASTResponse = function buildVASTResponse(adsChain) {
     }
 
     if (response.duration === undefined) {
-      throw new VASTError("on VASTClient._buildVASTResponse, Missing duration field in VAST response", 101);
+//      throw new VASTError("on VASTClient._buildVASTResponse, Missing duration field in VAST response", 101);
     }
 
     if (progressEvents) {

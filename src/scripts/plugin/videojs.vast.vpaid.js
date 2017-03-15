@@ -80,7 +80,7 @@ module.exports = function VASTPlugin(options) {
 
   vastUtil.runFlashSupportCheck(settings.vpaidFlashLoaderPath);// Necessary step for VPAIDFLASHClient to work.
 
-  playerUtils.once(player, ['loadedmetadata'], function(evt){
+  playerUtils.once(player, ['loadedmetadata'], function(){
   // prepare only after player loads main source metadata
     if(player.hasStarted()){
 		// if we use autoplay - we need pause player to restart play action for ads
@@ -92,7 +92,7 @@ module.exports = function VASTPlugin(options) {
 		 setTimeout(function(){
 			player.vast.isPlayed = false;
 			player.play();
-		 }, 10)
+		 }, 100)
 	 }
   })
 
