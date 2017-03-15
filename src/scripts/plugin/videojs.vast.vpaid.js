@@ -72,15 +72,29 @@ module.exports = function VASTPlugin(options) {
     return trackAdError(new VASTError('on VideoJS VAST plugin, the passed adTagXML option does not contain a function'));
   }
 
-  if (!utilities.isDefined(settings.adTagUrl) && !utilities.isFunction(settings.adTagXML)) {
-    return trackAdError(new VASTError('on VideoJS VAST plugin, missing adTagUrl on options object'));
-  }
+//  if (!utilities.isDefined(settings.adTagUrl) && !utilities.isFunction(settings.adTagXML)) {
+//    return trackAdError(new VASTError('on VideoJS VAST plugin, missing adTagUrl on options object'));
+//  }
 
   logger.setVerbosity (settings.verbosity);
 
   vastUtil.runFlashSupportCheck(settings.vpaidFlashLoaderPath);// Necessary step for VPAIDFLASHClient to work.
 
-  playerUtils.prepareForAds(player);
+  playerUtils.once(player, ['loadedmetadata'], function(evt){
+  // prepare only after player loads main source metadata
+    if(player.hasStarted()){
+		// if we use autoplay - we need pause player to restart play action for ads
+		player.vast.isPlayed = true;
+		player.pause();
+	}
+	 playerUtils.prepareForAds(player); 
+	 if(player.vast.isPlayed){
+		 setTimeout(function(){
+			player.vast.isPlayed = false;
+			player.play();
+		 }, 10)
+	 }
+  })
 
   if (settings.playAdAlways) {
     // No matter what happens we play a new ad before the user sees the video again.
