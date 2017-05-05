@@ -44,11 +44,13 @@ playerUtils.getPlayerSnapshot = function getPlayerSnapshot(player) {
 
     var suppressedTracks = [];
     tracks.forEach(function (track) {
-      suppressedTracks.push({
-        track: track,
-        mode: track.mode
-      });
-      track.mode = 'disabled';
+      if(typeof track != 'undefined'){
+        suppressedTracks.push({
+          track: track,
+          mode: track.mode
+        });
+        track.mode = 'disabled';
+      }
     });
 
     return suppressedTracks;
