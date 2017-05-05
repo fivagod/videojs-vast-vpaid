@@ -5,6 +5,7 @@ var VideoClicks = require('./VideoClicks');
 var Linear = require('./Linear');
 var InLine = require('./InLine');
 var Wrapper = require('./Wrapper');
+var parsers = require('./parsers');
 
 var utilities = require('../../utils/utilityFunctions');
 var xml = require('../../utils/xml');
@@ -133,6 +134,21 @@ VASTResponse.prototype._addLinear = function (linear) {
     this._linearAdded = true;
   }
 };
+VASTResponse.prototype._addExtensions = function (extensions) {
+  if(extensions instanceof xml.JXONTree){
+    for(var i in extensions.extension){
+      if(extensions.extension[i] instanceof xml.JXONTree){
+        switch(xml.attr(extensions.extension[i],'type')){
+          case "skipTime":
+            if(typeof xml.keyValue(extensions.extension[i]) != 'undefined'){
+            	this._addSkipoffset(parsers.offset(extensions.extension[i]['keyValue']));
+            }
+            break;
+        }
+      }
+    }
+  }
+};
 
 VASTResponse.prototype._addInLine = function (inLine) {
   var that = this;
@@ -141,6 +157,7 @@ VASTResponse.prototype._addInLine = function (inLine) {
     this._addTitle(inLine.adTitle);
     this._addErrorTrackUrl(inLine.error);
     this._addImpressions(inLine.impressions);
+    this._addExtensions(inLine.extensions);
 
     inLine.creatives.forEach(function (creative) {
       if (creative.linear) {

@@ -2,7 +2,7 @@
 
 var utilities = require('../../utils/utilityFunctions');
 
-var durationRegex = /(\d\d):(\d\d):(\d\d)(\.(\d\d\d))?/;
+var durationRegex = /(?:(\d\d):)?(\d\d):(\d\d)(\.(\d\d\d))?/;
 
 var parsers = {
 
@@ -13,7 +13,7 @@ var parsers = {
     if (utilities.isString(durationStr)) {
       match = durationStr.match(durationRegex);
       if (match) {
-        durationInMs = parseHoursToMs(match[1]) + parseMinToMs(match[2]) + parseSecToMs(match[3]) + parseInt(match[5] || 0);
+        durationInMs = parseHoursToMs(match[1] || 0) + parseMinToMs(match[2]) + parseSecToMs(match[3]) + parseInt(match[5] || 0);
       }
     }
 
