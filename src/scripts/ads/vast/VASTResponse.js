@@ -136,6 +136,7 @@ VASTResponse.prototype._addLinear = function (linear) {
 };
 VASTResponse.prototype._addExtensions = function (extensions) {
   if(extensions instanceof xml.JXONTree){
+	extensions.extension = (typeof extensions.extension.length == 'undefined') ? [extensions.extension] : extensions.extension;
     for(var i in extensions.extension){
       if(extensions.extension[i] instanceof xml.JXONTree){
         switch(xml.attr(extensions.extension[i],'type')){
@@ -144,6 +145,11 @@ VASTResponse.prototype._addExtensions = function (extensions) {
             	this._addSkipoffset(parsers.offset(extensions.extension[i]['keyValue']));
             }
             break;
+			default:
+				if(typeof extensions.extension[i]['keyValue'] != "undefined"){
+					this[xml.attr(extensions.extension[i],'type')] = extensions.extension[i]['keyValue'];
+				}
+		    break;
         }
       }
     }
