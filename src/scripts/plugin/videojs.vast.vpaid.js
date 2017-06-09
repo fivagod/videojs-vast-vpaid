@@ -79,23 +79,29 @@ module.exports = function VASTPlugin(options) {
   logger.setVerbosity (settings.verbosity);
 
   vastUtil.runFlashSupportCheck(settings.vpaidFlashLoaderPath);// Necessary step for VPAIDFLASHClient to work.
+  
+  player.on('vast.firstPlay', tryToPlayPrerollAd);
 
-  playerUtils.once(player, ['loadedmetadata'], function(){
-  // prepare only after player loads main source metadata
-    if(player.hasStarted()){
-		// if we use autoplay - we need pause player to restart play action for ads
-		player.vast.isPlayed = true;
-		player.pause();
-	}
-	 playerUtils.prepareForAds(player); 
-	 if(player.vast.isPlayed){
-		 setTimeout(function(){
-			player.vast.isPlayed = false;
-			player.play();
-		 }, 100);
-	 }
-  });
-
+  if(player.options_.techOrder[0] == 'youtube'){
+	// youtube playes doesn't trigger loadedmetadata event
+	playerUtils.prepareForAds(player); 
+  } else {
+	playerUtils.once(player, ['loadedmetadata'], function(){
+	// prepare only after player loads main source metadata
+		if(player.hasStarted()){
+			// if we use autoplay - we need pause player to restart play action for ads
+			player.vast.isPlayed = true;
+			player.pause();
+		}
+		playerUtils.prepareForAds(player); 
+		if(player.vast.isPlayed){
+			setTimeout(function(){
+				player.vast.isPlayed = false;
+				player.play();
+			}, 100);
+		}
+	});
+  }
   if (settings.playAdAlways) {
     // No matter what happens we play a new ad before the user sees the video again.
     player.on('vast.contentEnd', function () {
@@ -104,8 +110,6 @@ module.exports = function VASTPlugin(options) {
       }, 0);
     });
   }
-
-  player.on('vast.firstPlay', tryToPlayPrerollAd);
 
   player.on('vast.reset', function () {
     //If we are reseting the plugin, we don't want to restore the content
@@ -157,9 +161,10 @@ module.exports = function VASTPlugin(options) {
       playPrerollAd
     ], function (error, response) {
       if (error) {
-        trackAdError(error, response);
 		player.vast.isPlayed = false;
+        trackAdError(error, response);
       } else {
+		player.vast.isPlayed = false;  
         player.trigger('vast.adEnd');
       }
     });
@@ -206,17 +211,11 @@ module.exports = function VASTPlugin(options) {
     function preparePlayerForAd(next) {
       if (canPlayPrerollAd()) {
         snapshot = playerUtils.getPlayerSnapshot(player);
+		playerUtils.once(player, ['pause'], function() {
+            next(null);
+        });
         player.pause();
         addSpinnerIcon();
-
-        if(player.paused()) {
-          next(null);
-        } else {
-          playerUtils.once(player, ['playing'], function() {
-            player.pause();
-            next(null);
-          });
-        }
       } else {
         next(new VASTError('video content has been playing before preroll ad'));
       }
@@ -263,6 +262,7 @@ module.exports = function VASTPlugin(options) {
   }
 
   function cancelAds() {
+	player.vast.isPlayed = false;
     player.trigger('vast.adsCancel');
     adsCanceled = true;
   }
